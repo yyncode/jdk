@@ -1123,23 +1123,30 @@ public class ArrayList<E> extends AbstractList<E>
         throws java.io.IOException, ClassNotFoundException {
 
         // Read in size, and any hidden stuff
+        // 读取非静态属性、非 transient 属性
         s.defaultReadObject();
 
         // Read in capacity
+        // 读取 size ，不过忽略不用
         s.readInt(); // ignored
 
         if (size > 0) {
             // like clone(), allocate array based upon size not capacity
+            // 像 clone（） 一样，根据大小而不是容量分配数组
             SharedSecrets.getJavaObjectInputStreamAccess().checkArray(s, Object[].class, size);
+            // 创建 elements 数组
             Object[] elements = new Object[size];
 
             // Read in all elements in the proper order.
+            // 逐个读取
             for (int i = 0; i < size; i++) {
                 elements[i] = s.readObject();
             }
 
+            // 赋值给 elementData
             elementData = elements;
         } else if (size == 0) {
+            // 如果 size 是 0 ，则直接使用空数组
             elementData = EMPTY_ELEMENTDATA;
         } else {
             throw new java.io.InvalidObjectException("Invalid size: " + size);
