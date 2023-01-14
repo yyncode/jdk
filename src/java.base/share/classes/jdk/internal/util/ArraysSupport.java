@@ -623,6 +623,25 @@ public class ArraysSupport {
      * Of course, regardless of the length value returned from this method, the caller
      * may encounter OutOfMemoryError if there is insufficient heap to fulfill the request.
      *
+     * 在给定阵列当前长度、最小增长量和首选增长量的情况下计算新的阵列长度。
+     * 计算以溢出安全的方式完成。
+     * 此方法由包含数组的对象使用，该数组可能需要增长以满足某些即时需求（最小增长量），
+     * 但也希望请求更多空间（首选增长量）以适应潜在的未来需求。
+     * 返回的长度通常被固定在软最大长度，以避免达到 JVM 实现限制。
+     * 但是，如果最小增长量需要，则会超过软最大值。
+     * 如果首选增长量小于最小增长量，则使用最小增长量作为首选增长量。
+     * 首选长度是通过将首选增长量添加到当前长度来确定的。
+     * 如果首选长度不超过软最大长度 （SOFT_MAX_ARRAY_LENGTH），则返回首选长度。
+     * 如果首选长度超过软最大值，我们使用最小增长量。所需的最小长度是通过将最小增长量添加到当前长度来确定的。
+     * 如果所需的最小长度超过 Integer.MAX_VALUE，则此方法将引发 OutOfMemoryError。
+     * 否则，此方法返回所需的软最大值或最小长度中的较大者。
+     * 请注意，此方法本身不执行任何数组分配;
+     * 它只执行数组长度增长计算。
+     * 但是，如上所述，它将抛出 OutOfMemoryError。
+     * 另请注意，此方法无法检测 JVM 的实现限制，并且它可能会计算并返回一个长度值（最大值为（包括 Integer.MAX_VALUE），该值可能超过 JVM 的实现限制。
+     * 在这种情况下，调用方可能会尝试使用该长度的数组分配，并遇到内存不足错误。
+     * 当然，无论此方法返回的长度值如何，如果没有足够的堆来满足请求，调用方都可能会遇到 OutOfMemoryError。
+     *
      * @param oldLength   current length of the array (must be nonnegative)
      * @param minGrowth   minimum required growth amount (must be positive)
      * @param prefGrowth  preferred growth amount

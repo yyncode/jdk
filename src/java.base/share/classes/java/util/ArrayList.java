@@ -231,13 +231,16 @@ public class ArrayList<E> extends AbstractList<E>
      * Trims the capacity of this {@code ArrayList} instance to be the
      * list's current size.  An application can use this operation to minimize
      * the storage of an {@code ArrayList} instance.
+     * 会创建大小恰好够用的新数组，并将原数组复制到其中
      */
     public void trimToSize() {
+        // 增加修改次数
         modCount++;
+        // 如果有多余的空间，则进行缩容
         if (size < elementData.length) {
             elementData = (size == 0)
-              ? EMPTY_ELEMENTDATA
-              : Arrays.copyOf(elementData, size);
+              ? EMPTY_ELEMENTDATA // 大小为 0 时，直接使用 EMPTY_ELEMENTDATA
+              : Arrays.copyOf(elementData, size); // 大小大于 0 ，则创建大小为 size 的新数组，将原数组复制到其中
         }
     }
 
@@ -245,14 +248,17 @@ public class ArrayList<E> extends AbstractList<E>
      * Increases the capacity of this {@code ArrayList} instance, if
      * necessary, to ensure that it can hold at least the number of elements
      * specified by the minimum capacity argument.
+     * 保证 elementData 数组容量至少有 minCapacity,我们可以将这个方法理解成主动扩容。
      *
      * @param minCapacity the desired minimum capacity
      */
     public void ensureCapacity(int minCapacity) {
-        if (minCapacity > elementData.length
+        if (minCapacity > elementData.length // 如果 minCapacity 大于数组的容量
             && !(elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
-                 && minCapacity <= DEFAULT_CAPACITY)) {
+                 && minCapacity <= DEFAULT_CAPACITY)) { // 如果 elementData 是 DEFAULTCAPACITY_EMPTY_ELEMENTDATA 的时候，需要最低 minCapacity 容量大于 DEFAULT_CAPACITY ，因为实际上容量是 DEFAULT_CAPACITY 。
+            // 数组修改次数加一
             modCount++;
+            // 扩容
             grow(minCapacity);
         }
     }
@@ -266,17 +272,29 @@ public class ArrayList<E> extends AbstractList<E>
      */
     private Object[] grow(int minCapacity) {
         int oldCapacity = elementData.length;
+        // <2> 如果原容量大于 0 ，或者数组不是 DEFAULTCAPACITY_EMPTY_ELEMENTDATA 时，计算新的数组大小，并创建扩容
         if (oldCapacity > 0 || elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+            // 计算新的数组大小。
+            // 一般情况下，从 oldCapacity >> 1 可以看处，是 1.5 倍扩容。
+            // 但是会有两个特殊情况：
+            // 1）初始化数组要求大小为 0 的时候，0 >> 1 时（>> 1 为右移操作，相当于除以 2）还是 0 ，此时使用 minCapacity 传入的 1 。
+            // 2）在下文中，我们会看到添加多个元素，此时传入的 minCapacity 不再仅仅加 1 ，而是扩容到 elementData 数组恰好可以添加下多个元素，而该数量可能会超过当前 ArrayList 0.5 倍的容量。
             int newCapacity = ArraysSupport.newLength(oldCapacity,
                     minCapacity - oldCapacity, /* minimum growth */
                     oldCapacity >> 1           /* preferred growth */);
             return elementData = Arrays.copyOf(elementData, newCapacity);
+            // <3> 如果是 DEFAULTCAPACITY_EMPTY_ELEMENTDATA 数组，直接创建新的数组即可。如果无参构造方法使用 EMPTY_ELEMENTDATA 的话，无法实现该效果了。
         } else {
             return elementData = new Object[Math.max(DEFAULT_CAPACITY, minCapacity)];
         }
     }
 
+    /**
+     * 扩容数组，并返回它。整个的扩容过程，首先创建一个新的更大的数组，一般是 1.5 倍大小
+     * @return
+     */
     private Object[] grow() {
+        //调用 #grow(int minCapacity) 方法，要求扩容后至少比原有大 1 。因为是最小扩容的要求，实际是允许比它大。
         return grow(size + 1);
     }
 
