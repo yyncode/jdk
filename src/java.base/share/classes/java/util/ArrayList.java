@@ -568,17 +568,22 @@ public class ArrayList<E> extends AbstractList<E>
      * Shifts any subsequent elements to the left (subtracts one from their
      * indices).
      *
+     * 移除此列表中指定位置的元素。将任何后续元素向左移动（从其索引中减去一个）
+     *
      * @param index the index of the element to be removed
      * @return the element that was removed from the list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public E remove(int index) {
+        // 校验 index 不要超过 size
         Objects.checkIndex(index, size);
         final Object[] es = elementData;
 
+        // 记录该位置的原值
         @SuppressWarnings("unchecked") E oldValue = (E) es[index];
+        // <X>快速移除
         fastRemove(es, index);
-
+        // 返回该位置的原值
         return oldValue;
     }
 
@@ -679,38 +684,53 @@ public class ArrayList<E> extends AbstractList<E>
      * contained the specified element (or equivalently, if this list
      * changed as a result of the call).
      *
+     * 从此列表中移除第一次出现的指定元素（如果存在）。
+     * 如果列表不包含该元素，则它不变。更正式地说，删除具有最低索引i的元素，这样Objects.equals(o, get(i)) （如果存在这样的元素）。
+     * 如果此列表包含指定元素，则返回true （或者等效地，如果此列表因调用而更改）。
+     *
+     * 移除首个为 o 的元素，并返回是否移除到。
+     *
      * @param o element to be removed from this list, if present
      * @return {@code true} if this list contained the specified element
      */
     public boolean remove(Object o) {
         final Object[] es = elementData;
         final int size = this.size;
+        // <Z> 寻找首个为 o 的位置
         int i = 0;
         found: {
-            if (o == null) {
+            if (o == null) { // o 为 null 的情况
                 for (; i < size; i++)
                     if (es[i] == null)
                         break found;
-            } else {
+            } else { // o 非 null 的情况
                 for (; i < size; i++)
                     if (o.equals(es[i]))
                         break found;
             }
+            // 如果没找到，返回 false
             return false;
         }
+        // 快速移除
         fastRemove(es, i);
+        // 找到了，返回 true
         return true;
     }
 
     /**
      * Private remove method that skips bounds checking and does not
      * return the value removed.
+     *
+     * 跳过边界检查并且不返回删除的值的私有删除方法。
      */
     private void fastRemove(Object[] es, int i) {
+        // 增加数组修改次数
         modCount++;
+        // <Y>如果 i 不是移除最末尾的元素，则将 i + 1 位置的数组往前挪
         final int newSize;
-        if ((newSize = size - 1) > i)
+        if ((newSize = size - 1) > i) // -1 的原因是，size 是从 1 开始，而数组下标是从 0 开始。
             System.arraycopy(es, i + 1, es, i, newSize - i);
+        // 将新的末尾置为 null ，帮助 GC
         es[size = newSize] = null;
     }
 
