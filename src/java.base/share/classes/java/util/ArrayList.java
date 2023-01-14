@@ -1077,6 +1077,8 @@ public class ArrayList<E> extends AbstractList<E>
      * Saves the state of the {@code ArrayList} instance to a stream
      * (that is, serializes it).
      *
+     * 将ArrayList实例的状态保存到流中（即序列化它）。
+     *
      * @param s the stream
      * @throws java.io.IOException if an I/O error occurs
      * @serialData The length of the array backing the {@code ArrayList}
@@ -1087,17 +1089,22 @@ public class ArrayList<E> extends AbstractList<E>
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
         // Write out element count, and any hidden stuff
+        // 获得当前的数组修改次数
         int expectedModCount = modCount;
+        // <1> 写入非静态属性、非 transient 属性
         s.defaultWriteObject();
 
         // Write out size as capacity for behavioral compatibility with clone()
+        // <2> 写入 size ，主要为了与 clone 方法的兼容
         s.writeInt(size);
 
         // Write out all elements in the proper order.
+        // <3> 逐个写入 elementData 数组的元素
         for (int i=0; i<size; i++) {
             s.writeObject(elementData[i]);
         }
 
+        // 如果 other 修改次数发生改变，则抛出 ConcurrentModificationException 异常
         if (modCount != expectedModCount) {
             throw new ConcurrentModificationException();
         }
