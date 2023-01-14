@@ -322,6 +322,9 @@ public class ArrayList<E> extends AbstractList<E>
      * at least one element {@code e} such that
      * {@code Objects.equals(o, e)}.
      *
+     * 如果此列表包含指定的元素，则返回 true。
+     * 更正式地说，当且仅当此列表包含至少一个元素 e 使得 Objects.equals（o， e） 返回 true。
+     *
      * @param o element whose presence in this list is to be tested
      * @return {@code true} if this list contains the specified element
      */
@@ -335,6 +338,9 @@ public class ArrayList<E> extends AbstractList<E>
      * More formally, returns the lowest index {@code i} such that
      * {@code Objects.equals(o, get(i))},
      * or -1 if there is no such index.
+     *
+     * 返回此列表中指定元素第一次出现的索引，如果此列表不包含该元素，则返回 -1。
+     * 更正式地说，返回最低索引i使得Objects.equals(o, get(i)) ，如果没有这样的索引则返回 -1。
      */
     public int indexOf(Object o) {
         return indexOfRange(o, 0, size);
@@ -342,6 +348,7 @@ public class ArrayList<E> extends AbstractList<E>
 
     int indexOfRange(Object o, int start, int end) {
         Object[] es = elementData;
+        // o 为 null 的情况
         if (o == null) {
             for (int i = start; i < end; i++) {
                 if (es[i] == null) {
@@ -349,12 +356,14 @@ public class ArrayList<E> extends AbstractList<E>
                 }
             }
         } else {
+            // o 非 null 的情况
             for (int i = start; i < end; i++) {
                 if (o.equals(es[i])) {
                     return i;
                 }
             }
         }
+        // 找不到，返回 -1
         return -1;
     }
 
@@ -364,6 +373,9 @@ public class ArrayList<E> extends AbstractList<E>
      * More formally, returns the highest index {@code i} such that
      * {@code Objects.equals(o, get(i))},
      * or -1 if there is no such index.
+     *
+     * 返回此列表中指定元素最后一次出现的索引，如果此列表中不包含该元素，则返回 -1。
+     * 更正式地说，返回最高索引 i，使得 Objects.equals（o， get（i）），如果没有这样的索引，则返回 -1。
      */
     public int lastIndexOf(Object o) {
         return lastIndexOfRange(o, 0, size);
@@ -371,19 +383,22 @@ public class ArrayList<E> extends AbstractList<E>
 
     int lastIndexOfRange(Object o, int start, int end) {
         Object[] es = elementData;
+        // o 为 null 的情况
         if (o == null) {
-            for (int i = end - 1; i >= start; i--) {
+            for (int i = end - 1; i >= start; i--) { // 倒序
                 if (es[i] == null) {
                     return i;
                 }
             }
         } else {
-            for (int i = end - 1; i >= start; i--) {
+            // o 非 null 的情况
+            for (int i = end - 1; i >= start; i--) { // 倒序
                 if (o.equals(es[i])) {
                     return i;
                 }
             }
         }
+        // 找不到，返回 -1
         return -1;
     }
 
