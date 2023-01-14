@@ -135,11 +135,20 @@ public class ArrayList<E> extends AbstractList<E>
      * empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
      * will be expanded to DEFAULT_CAPACITY when the first element is added.
      */
+    /**
+     * 存储 ArrayList 元素的数组缓冲区。
+     * ArrayList 的容量就是这个数组缓冲区的长度。
+     * 添加第一个元素时，任何具有 elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA 的空 ArrayList 都将扩展为 DEFAULT_CAPACITY。
+     */
     transient Object[] elementData; // non-private to simplify nested class access
 
     /**
      * The size of the ArrayList (the number of elements it contains).
-     *
+     * ArrayList 的大小（它包含的元素数）。
+     * 注意，size 代表的是 ArrayList 已使用 elementData 的元素的数量，
+     * 对于开发者看到的 #size() 也是该大小。并且，当我们添加新的元素时，
+     * 恰好其就是元素添加到 elementData 的位置（下标）。
+     * 当然，我们知道 ArrayList 真正的大小是 elementData 的大小。
      * @serial
      */
     private int size;
