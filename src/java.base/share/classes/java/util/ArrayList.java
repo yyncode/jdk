@@ -507,15 +507,21 @@ public class ArrayList<E> extends AbstractList<E>
      * Replaces the element at the specified position in this list with
      * the specified element.
      *
+     * 用指定元素替换此列表中指定位置的元素。
+     *
      * @param index index of the element to replace
      * @param element element to be stored at the specified position
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public E set(int index, E element) {
+        // 校验 index 不要超过 size
         Objects.checkIndex(index, size);
+        // 获得 index 位置的原元素
         E oldValue = elementData(index);
+        // 修改 index 位置为新元素
         elementData[index] = element;
+        // 返回 index 位置的原元素
         return oldValue;
     }
 
