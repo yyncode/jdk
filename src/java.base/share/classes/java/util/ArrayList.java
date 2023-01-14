@@ -734,21 +734,34 @@ public class ArrayList<E> extends AbstractList<E>
      * undefined if the specified collection is this list, and this
      * list is nonempty.)
      *
+     * 将指定集合中的所有元素追加到此列表的末尾，
+     * 按照它们由指定集合的迭代器返回的顺序。
+     * 如果在操作进行时修改了指定的集合，则此操作的行为是未定义的。
+     * （这意味着如果指定的集合是这个列表并且这个列表是非空的，那么这个调用的行为是未定义的。）
+     *
+     * 批量添加多个元素。在我们明确知道会添加多个元素时，推荐使用该该方法而不是添加单个元素，避免可能多次扩容。
+     *
      * @param c collection containing elements to be added to this list
      * @return {@code true} if this list changed as a result of the call
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<? extends E> c) {
+        // 转成 a 数组
         Object[] a = c.toArray();
+        // 增加修改次数
         modCount++;
+        // 如果 a 数组大小为 0 ，返回 ArrayList 数组无变化
         int numNew = a.length;
         if (numNew == 0)
             return false;
+        // <1> 如果 elementData 剩余的空间不够，则进行扩容。要求扩容的大小，至于能够装下 a 数组。如果要求扩容的空间太小，则扩容 1.5 倍。
         Object[] elementData;
         final int s;
         if (numNew > (elementData = this.elementData).length - (s = size))
             elementData = grow(s + numNew);
+        // <2> 将 a 复制到 elementData 从 s 开始位置
         System.arraycopy(a, 0, elementData, s, numNew);
+        // 数组大小加 numNew
         size = s + numNew;
         return true;
     }
@@ -761,6 +774,9 @@ public class ArrayList<E> extends AbstractList<E>
      * in the list in the order that they are returned by the
      * specified collection's iterator.
      *
+     * 从指定位置开始，将指定集合中的所有元素插入到此列表中。
+     * 将当前位于该位置的元素（如果有）和任何后续元素向右移动（增加其索引）。新元素将按照指定集合的迭代器返回的顺序显示在列表中。
+     *
      * @param index index at which to insert the first element from the
      *              specified collection
      * @param c collection containing elements to be added to this list
@@ -769,24 +785,32 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(int index, Collection<? extends E> c) {
+        // 校验位置是否在数组范围内
         rangeCheckForAdd(index);
 
+        // 转成 a 数组
         Object[] a = c.toArray();
+        // 增加数组修改次数
         modCount++;
+        // 如果 a 数组大小为 0 ，返回 ArrayList 数组无变化
         int numNew = a.length;
         if (numNew == 0)
             return false;
+        // 如果 elementData 剩余的空间不够，则进行扩容。要求扩容的大小，至于能够装下 a 数组。
         Object[] elementData;
         final int s;
         if (numNew > (elementData = this.elementData).length - (s = size))
             elementData = grow(s + numNew);
 
+        // 【差异点】如果 index 开始的位置已经被占用，将它们后移
         int numMoved = s - index;
         if (numMoved > 0)
             System.arraycopy(elementData, index,
                              elementData, index + numNew,
                              numMoved);
+        // 将 a 复制到 elementData 从 s 开始位置
         System.arraycopy(a, 0, elementData, index, numNew);
+        // 数组大小加 numNew
         size = s + numNew;
         return true;
     }
