@@ -406,12 +406,17 @@ public class ArrayList<E> extends AbstractList<E>
      * Returns a shallow copy of this {@code ArrayList} instance.  (The
      * elements themselves are not copied.)
      *
+     * 返回此 ArrayList 实例的浅表副本。（不会复制元素本身。）
+     *
      * @return a clone of this {@code ArrayList} instance
      */
     public Object clone() {
         try {
+            // 调用父类，进行克隆
             ArrayList<?> v = (ArrayList<?>) super.clone();
+            // 拷贝一个新的数组
             v.elementData = Arrays.copyOf(elementData, size);
+            // 设置数组修改次数为 0
             v.modCount = 0;
             return v;
         } catch (CloneNotSupportedException e) {
@@ -1113,6 +1118,9 @@ public class ArrayList<E> extends AbstractList<E>
     /**
      * Reconstitutes the {@code ArrayList} instance from a stream (that is,
      * deserializes it).
+     *
+     * 从流中重构ArrayList实例（即反序列化）。
+     *
      * @param s the stream
      * @throws ClassNotFoundException if the class of a serialized object
      *         could not be found
