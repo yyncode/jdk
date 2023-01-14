@@ -842,6 +842,11 @@ public class ArrayList<E> extends AbstractList<E>
      * This call shortens the list by {@code (toIndex - fromIndex)} elements.
      * (If {@code toIndex==fromIndex}, this operation has no effect.)
      *
+     * 从此列表中删除索引介于fromIndex和toIndex之间的所有元素。
+     * 将任何后续元素向左移动（减少它们的索引）。
+     * 此调用通过(toIndex - fromIndex)元素缩短列表。
+     * （如果toIndex==fromIndex ，此操作无效。）
+     *
      * @throws IndexOutOfBoundsException if {@code fromIndex} or
      *         {@code toIndex} is out of range
      *         ({@code fromIndex < 0 ||
@@ -849,17 +854,25 @@ public class ArrayList<E> extends AbstractList<E>
      *          toIndex < fromIndex})
      */
     protected void removeRange(int fromIndex, int toIndex) {
+        // 范围不正确，抛出 IndexOutOfBoundsException 异常
         if (fromIndex > toIndex) {
             throw new IndexOutOfBoundsException(
                     outOfBoundsMsg(fromIndex, toIndex));
         }
+        // 增加数组修改次数
         modCount++;
+        // <X> 移除 [fromIndex, toIndex) 的多个元素（不包含toIndex索引对应的值）
         shiftTailOverGap(elementData, fromIndex, toIndex);
     }
 
-    /** Erases the gap from lo to hi, by sliding down following elements. */
+    /**
+     * Erases the gap from lo to hi, by sliding down following elements.
+     * 通过向下滑动以下元素来消除从 lo 到 hi 的间隙。
+     * */
     private void shiftTailOverGap(Object[] es, int lo, int hi) {
+        // 将 es 从 hi 位置开始的元素，移到 lo 位置开始。
         System.arraycopy(es, hi, es, lo, size - hi);
+        // 将从 [size - hi + lo, size) 的元素置空，因为已经被挪到前面了。
         for (int to = size, i = (size -= hi - lo); i < to; i++)
             es[i] = null;
     }
@@ -893,6 +906,11 @@ public class ArrayList<E> extends AbstractList<E>
      * Removes from this list all of its elements that are contained in the
      * specified collection.
      *
+     * 从此列表中移除指定集合中包含的所有元素。
+     *
+     * 通过两个变量 w（写入位置）和 r（读取位置），按照 r 顺序遍历数组(elementData)，如果不存在于指定的多个元素中，则写入到 elementData 的 w 位置，
+     * 然后 w 位置 + 1 ，跳到下一个写入位置。通过这样的方式，实现将不存在 elementData 覆盖写到 w 位置。
+     *
      * @param c collection containing elements to be removed from this list
      * @return {@code true} if this list changed as a result of the call
      * @throws ClassCastException if the class of an element of this list
@@ -913,6 +931,8 @@ public class ArrayList<E> extends AbstractList<E>
      * specified collection.  In other words, removes from this list all
      * of its elements that are not contained in the specified collection.
      *
+     * 仅保留此列表中包含在指定集合中的元素。换句话说，从该列表中删除所有未包含在指定集合中的元素。
+     *
      * @param c collection containing elements to be retained in this list
      * @return {@code true} if this list changed as a result of the call
      * @throws ClassCastException if the class of an element of this list
@@ -928,31 +948,62 @@ public class ArrayList<E> extends AbstractList<E>
         return batchRemove(c, true, 0, size);
     }
 
+    /**
+     *
+     * complement 参数，翻译过来是“补足”的意思。怎么理解呢？表示如果 elementData 元素在 c 集合中时，是否保留。
+     * 如果 complement 为 false 时，表示在集合中，就不保留，这显然符合 #removeAll(Collection<?> c) 方法要移除的意图。
+     * 如果 complement 为 true 时，表示在集合中，就暴露，这符合我们后面会看到的 #retainAll(Collection<?> c) 方法要求交集的意图。
+     * <1> 处，首先我们要知道这是一个基于 Optimize 优化的目的。我们是希望先判断是否 elementData 没有任何一个符合 c 的，这样就无需进行执行对应的移除逻辑。但是，我们又希望能够避免重复遍历，于是就有了这样一块的逻辑。总的来说，这块逻辑的目的是，优化，顺序遍历 elementData 数组，找到第一个不符合 complement ，然后结束遍历。
+     * <1.1> 处，遍历到尾，都没不符合条件的，直接返回 false 。也就是说，丫根就不需要进行移除的逻辑。
+     * <1.2> 处，如果包含结果不符合 complement 时，结束循环。可能有点难理解，我们来举个例子。假设 elementData 是 [1, 2, 3, 1] 时，c 是 [2] 时，那么在遍历第 0 个元素 1 时，则 c.contains(es[r]) != complement => false != false 不符合，所以继续缓存；然后，在遍历第 1 个元素 2 时，c.contains(es[r]) != complement => true != false 符合，所以结束循环。此时，我们便找到了第一个需要移除的元素的位置。当然，移除不是在这里执行，我们继续往下看。
+     * <2> 处，设置开始写入 w 为 r ，注意不是 r++ 。这样，我们后续在循环 elementData 数组，就会从 w 开始写入。并且此时，r 也跳到了下一个位置，这样间接我们可以发现，w 位置的元素已经被“跳过”了。
+     * <3> 处，继续遍历 elementData 数组，如何符合条件，则进行移除。可能有点难理解，我们继续上述例子。遍历第 2 个元素 3 时候，c.contains(es[r]) == complement => false == false 符合，所以将 3 写入到 w 位置，同时 w 指向下一个位置；遍历第三个元素 1 时候，c.contains(es[r]) == complement => true == false 不符合，所以不进行任何操作。
+     * <4> 处，如果 contains 方法发生异常，则将 es 从 r 位置的数据写入到 es 从 w 开始的位置。这样，保证我们剩余未遍历到的元素，能够挪到从从 w 开始的位置，避免多出来一些元素。
+     * <5> 处，是不是很熟悉，将数组 [w, end) 位置赋值为 null 。
+     * @param c
+     * @param complement 表示如果 elementData 元素在 c 集合中时，是否保留。
+     * 如果 complement 为 false 时，表示在集合中，就不保留，这显然符合 #removeAll(Collection<?> c) 方法要移除的意图。
+     * 如果 complement 为 true 时，表示在集合中，就暴露，这符合我们后面会看到的 #retainAll(Collection<?> c) 方法要求交集的意图。
+     * @param from
+     * @param end
+     * @return
+     */
     boolean batchRemove(Collection<?> c, boolean complement,
                         final int from, final int end) {
+        // 校验 c 非 null 。
         Objects.requireNonNull(c);
         final Object[] es = elementData;
         int r;
         // Optimize for initial run of survivors
+        // <1> 优化，顺序遍历 elementData 数组，找到第一个不符合 complement ，然后结束遍历。
         for (r = from;; r++) {
+            // <1.1> 遍历到尾，都没不符合条件的，直接返回 false 。
             if (r == end)
                 return false;
+            // <1.2> 如果包含结果不符合 complement 时，结束
             if (c.contains(es[r]) != complement)
                 break;
         }
+        // <2> 设置开始写入 w 为 r ，注意不是 r++ 。
+        // r++ 后，用于读取下一个位置的元素。因为通过上面的优化循环，我们已经 es[r] 是不符合条件的。
         int w = r++;
         try {
+            // <3> 继续遍历 elementData 数组，如何符合条件，则进行移除
             for (Object e; r < end; r++)
-                if (c.contains(e = es[r]) == complement)
-                    es[w++] = e;
+                if (c.contains(e = es[r]) == complement) // 判断符合条件
+                    es[w++] = e; // 移除的方式，通过将当前值 e 写入到 w 位置，然后 w 跳到下一个位置。
         } catch (Throwable ex) {
             // Preserve behavioral compatibility with AbstractCollection,
             // even if c.contains() throws.
+            // <4> 如果 contains 方法发生异常，则将 es 从 r 位置的数据写入到 es 从 w 开始的位置
             System.arraycopy(es, r, es, w, end - r);
             w += end - r;
+            // 继续抛出异常
             throw ex;
-        } finally {
+        } finally { // <5>
+            // 增加数组修改次数
             modCount += end - w;
+            // 将数组 [w, end) 位置赋值为 null 。
             shiftTailOverGap(es, w, end);
         }
         return true;
