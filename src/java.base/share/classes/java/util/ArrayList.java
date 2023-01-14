@@ -1355,6 +1355,20 @@ public class ArrayList<E> extends AbstractList<E>
      * those that change the size of this list, or otherwise perturb it in such
      * a fashion that iterations in progress may yield incorrect results.)
      *
+     *
+     * 返回此列表中指定的fromIndex和toIndex之间的部分视图。
+     * （如果fromIndex和toIndex相等，则返回列表为空。）
+     * 返回列表受此列表支持，因此返回列表中的非结构更改会反映在此列表中，
+     * 反之亦然。返回的列表支持所有可选的列表操作。
+     * 此方法消除了对显式范围操作（数组通常存在的那种）的需要。
+     * 通过传递子列表视图而不是整个列表，任何需要列表的操作都可以用作范围操作。
+     * 例如，以下习语从列表中删除一系列元素：
+     *   list.subList(from, to).clear();
+     * 可以为indexOf(Object)和lastIndexOf(Object)构造类似的习惯用法，
+     * 并且Collections类中的所有算法都可以应用于子列表。
+     * 如果支持列表（即此列表）以除通过返回列表以外的任何方式在结构上进行了修改，则此方法返回的列表的语义将变得未定义。
+     * （结构修改是指那些改变此列表大小的修改，或者以其他方式扰乱它，以至于正在进行的迭代可能会产生不正确的结果。）
+     *
      * @throws IndexOutOfBoundsException {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
@@ -1364,9 +1378,21 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     private static class SubList<E> extends AbstractList<E> implements RandomAccess {
+        /**
+         * 根 ArrayList
+         */
         private final ArrayList<E> root;
+        /**
+         *  父 SubList
+         */
         private final SubList<E> parent;
+        /**
+         * 起始位置
+         */
         private final int offset;
+        /**
+         * 大小
+         */
         private int size;
 
         /**
