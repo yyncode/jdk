@@ -698,17 +698,22 @@ public class ArrayList<E> extends AbstractList<E>
      * {@inheritDoc}
      */
     public int hashCode() {
+        // 获得当前的数组修改次数
         int expectedModCount = modCount;
+        // 计算哈希值
         int hash = hashCodeRange(0, size);
+        // 如果修改次数发生改变，则抛出 ConcurrentModificationException 异常
         checkForComodification(expectedModCount);
         return hash;
     }
 
     int hashCodeRange(int from, int to) {
         final Object[] es = elementData;
+        // 如果 to 超过大小，则抛出 ConcurrentModificationException 异常
         if (to > es.length) {
             throw new ConcurrentModificationException();
         }
+        // 遍历每个元素，* 31 求哈希。
         int hashCode = 1;
         for (int i = from; i < to; i++) {
             Object e = es[i];
