@@ -634,56 +634,69 @@ public class ArrayList<E> extends AbstractList<E>
      * {@inheritDoc}
      */
     public boolean equals(Object o) {
+        // 如果是自己，直接返回相等
         if (o == this) {
             return true;
         }
 
+        // 如果不为 List 类型，直接不相等
         if (!(o instanceof List)) {
             return false;
         }
 
+        // 获得当前的数组修改次数
         final int expectedModCount = modCount;
         // ArrayList can be subclassed and given arbitrary behavior, but we can
         // still deal with the common case where o is ArrayList precisely
+        // <X> 根据不同类型，调用不同比对的方法。主要考虑 ArrayList 可以直接使用其 elementData 属性，性能更优。
         boolean equal = (o.getClass() == ArrayList.class)
             ? equalsArrayList((ArrayList<?>) o)
             : equalsRange((List<?>) o, 0, size);
-
+        // 如果修改次数发生改变，则抛出 ConcurrentModificationException 异常
         checkForComodification(expectedModCount);
         return equal;
     }
 
     boolean equalsRange(List<?> other, int from, int to) {
         final Object[] es = elementData;
+        // 如果 to 大于 es 大小，说明说明发生改变，抛出 ConcurrentModificationException 异常
         if (to > es.length) {
             throw new ConcurrentModificationException();
         }
+        // 通过迭代器遍历 other ，然后逐个元素对比
         var oit = other.iterator();
         for (; from < to; from++) {
+            // 如果 oit 没有下一个，或者元素不相等，返回 false 不匹配
             if (!oit.hasNext() || !Objects.equals(es[from], oit.next())) {
                 return false;
             }
         }
+        // 通过 oit 是否遍历完。实现大小是否相等的效果
         return !oit.hasNext();
     }
 
     private boolean equalsArrayList(ArrayList<?> other) {
+        // 获得 other 数组修改次数
         final int otherModCount = other.modCount;
         final int s = size;
         boolean equal;
+        // 判断数组大小是否相等
         if (equal = (s == other.size)) {
             final Object[] otherEs = other.elementData;
             final Object[] es = elementData;
+            // 如果 s 大于 es 或者 otherEs 的长度，说明发生改变，抛出 ConcurrentModificationException 异常
             if (s > es.length || s > otherEs.length) {
                 throw new ConcurrentModificationException();
             }
+            // 遍历，逐个比较每个元素是否相等
             for (int i = 0; i < s; i++) {
                 if (!Objects.equals(es[i], otherEs[i])) {
                     equal = false;
-                    break;
+                    break; // 如果不相等，则 break
                 }
             }
         }
+        // 如果 other 修改次数发生改变，则抛出 ConcurrentModificationException 异常
         other.checkForComodification(otherModCount);
         return equal;
     }
