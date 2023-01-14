@@ -486,21 +486,30 @@ public class ArrayList<E> extends AbstractList<E>
      * which helps when add(E) is called in a C1-compiled loop.
      */
     private void add(E e, Object[] elementData, int s) {
+        // <2> 如果容量不够，进行扩容
+        // 备注：如果元素添加的位置就超过末尾（数组下标是从 0 开始，而数组大小比最大下标大 1），说明数组容量不够，需要进行扩容，那么就需要调用 #grow() 方法，进行扩容。
         if (s == elementData.length)
             elementData = grow();
+        // <3> 设置到末尾
         elementData[s] = e;
+        // <4> 数量大小加一
         size = s + 1;
     }
 
     /**
      * Appends the specified element to the end of this list.
      *
+     * 顺序添加单个元素到数组。
      * @param e element to be appended to this list
      * @return {@code true} (as specified by {@link Collection#add})
      */
     public boolean add(E e) {
+        // <1> 增加数组修改次数
+        // 备注：增加数组修改次数 modCount 。在父类 AbstractList 上，定义了 modCount 属性，用于记录数组修改次数。
         modCount++;
+        // 添加元素
         add(e, elementData, size);
+        // 返回添加成功
         return true;
     }
 
@@ -509,21 +518,30 @@ public class ArrayList<E> extends AbstractList<E>
      * list. Shifts the element currently at that position (if any) and
      * any subsequent elements to the right (adds one to their indices).
      *
+     * 在此列表中的指定位置插入指定元素。将当前位于该位置的元素（如果有）和任何后续元素向右移动（将其索引加一）。
+     * 插入单个元素到指定位置。
+     *
      * @param index index at which the specified element is to be inserted
      * @param element element to be inserted
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public void add(int index, E element) {
+        // 校验位置是否在数组范围内
         rangeCheckForAdd(index);
+        // 增加数组修改次数
         modCount++;
+        // 如果数组大小不够，进行扩容
         final int s;
         Object[] elementData;
         if ((s = size) == (elementData = this.elementData).length)
             elementData = grow();
+        // 将 index + 1 位置开始的元素，进行往后挪
         System.arraycopy(elementData, index,
                          elementData, index + 1,
                          s - index);
+        // 设置到指定位置
         elementData[index] = element;
+        // 数组大小加一
         size = s + 1;
     }
 
@@ -786,6 +804,7 @@ public class ArrayList<E> extends AbstractList<E>
 
     /**
      * A version of rangeCheck used by add and addAll.
+     * add 和 addAll 使用的 rangeCheck 版本。
      */
     private void rangeCheckForAdd(int index) {
         if (index > size || index < 0)
