@@ -798,9 +798,12 @@ public class ArrayList<E> extends AbstractList<E>
     /**
      * Removes all of the elements from this list.  The list will
      * be empty after this call returns.
+     * 从此列表中删除所有元素。此调用返回后列表将为空。
      */
     public void clear() {
+        // 当前的数组修改次数+1
         modCount++;
+        // 遍历数组，倒序设置为 null
         final Object[] es = elementData;
         for (int to = size, i = size = 0; i < to; i++)
             es[i] = null;
