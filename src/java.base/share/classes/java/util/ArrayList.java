@@ -424,6 +424,12 @@ public class ArrayList<E> extends AbstractList<E>
      * Returns an array containing all of the elements in this list
      * in proper sequence (from first to last element).
      *
+     * 返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素。
+     *
+     * 将 ArrayList 转换成 [] 数组。
+     *
+     * 返回的是 Object[] 类型噢。
+     *
      * <p>The returned array will be "safe" in that no references to it are
      * maintained by this list.  (In other words, this method must allocate
      * a new array).  The caller is thus free to modify the returned array.
@@ -453,6 +459,12 @@ public class ArrayList<E> extends AbstractList<E>
      * list <i>only</i> if the caller knows that the list does not contain
      * any null elements.)
      *
+     * 以正确的顺序（从第一个元素到最后一个元素）返回一个包含此列表中所有元素的数组；
+     * 返回数组的运行时类型是指定数组的类型。如果列表适合指定的数组，则在其中返回。
+     * 否则，将使用指定数组的运行时类型和此列表的大小分配一个新数组。
+     * 如果列表适合指定的数组并有剩余空间（即，数组的元素多于列表），则紧跟在集合末尾的数组中的元素将设置为null 。
+     * （仅当调用者知道列表不包含任何空元素时，这才有助于确定列表的长度。）
+     *
      * @param a the array into which the elements of the list are to
      *          be stored, if it is big enough; otherwise, a new array of the
      *          same runtime type is allocated for this purpose.
@@ -464,12 +476,16 @@ public class ArrayList<E> extends AbstractList<E>
      */
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
+        // <1> 如果传入的数组小于 size 大小，则直接复制一个新数组返回
         if (a.length < size)
             // Make a new array of a's runtime type, but my contents:
             return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+        // <2> 将 elementData 复制到 a 中
         System.arraycopy(elementData, 0, a, 0, size);
+        // <2.1> 如果传入的数组大于 size 大小，则将 size 赋值为 null
         if (a.length > size)
             a[size] = null;
+        // <2.2> 返回 a
         return a;
     }
 
