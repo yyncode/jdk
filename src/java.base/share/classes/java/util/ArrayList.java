@@ -488,12 +488,18 @@ public class ArrayList<E> extends AbstractList<E>
     /**
      * Returns the element at the specified position in this list.
      *
+     * 返回此列表中指定位置的元素。
+     *
+     * 随机访问 index 位置的元素，时间复杂度为 O(1) 。
+     *
      * @param  index index of the element to return
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public E get(int index) {
+        // 校验 index 不要超过 size
         Objects.checkIndex(index, size);
+        // 获得 index 位置的元素
         return elementData(index);
     }
 
