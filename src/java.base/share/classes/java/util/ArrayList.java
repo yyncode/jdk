@@ -1193,11 +1193,17 @@ public class ArrayList<E> extends AbstractList<E>
     /**
      * Returns an iterator over the elements in this list in proper sequence.
      *
+     * 按正确的顺序返回此列表中元素的迭代器。
+     *
      * <p>The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
      *
      * @return an iterator over the elements in this list in proper sequence
      */
     public Iterator<E> iterator() {
+        //创建 Itr 迭代器。
+        // Itr 实现 java.util.Iterator 接口，是 ArrayList 的内部类。
+        // 虽然说 AbstractList 也提供了一个 Itr 的实现，但是 ArrayList 为了更好的性能，所以自己实现了，
+        // 在其类上也有注释“An optimized version of AbstractList.Itr”。
         return new Itr();
     }
 
@@ -1205,59 +1211,108 @@ public class ArrayList<E> extends AbstractList<E>
      * An optimized version of AbstractList.Itr
      */
     private class Itr implements Iterator<E> {
+        /**
+         * 下一个访问元素的位置，从下标 0 开始。
+         */
         int cursor;       // index of next element to return
+        /**
+         * 上一次访问元素的位置。
+         *
+         * 1. 初始化为 -1 ，表示无上一个访问的元素
+         * 2. 遍历到下一个元素时，lastRet 会指向当前元素，而 cursor 会指向下一个元素。这样，如果我们要实现 remove 方法，移除当前元素，就可以实现了。
+         * 3. 移除元素时，设置为 -1 ，表示最后访问的元素不存在了，都被移除咧。
+         */
         int lastRet = -1; // index of last element returned; -1 if no such
+        /**
+         * 创建迭代器时，数组修改次数。
+         *
+         * 在迭代过程中，如果数组发生了变化，会抛出 ConcurrentModificationException 异常。
+         */
         int expectedModCount = modCount;
 
         // prevent creating a synthetic constructor
         Itr() {}
 
+        /**
+         * 判断是否还可以继续迭代。
+         * @return
+         */
         public boolean hasNext() {
+            //cursor 如果等于 size ，说明已经到数组末尾，无法继续迭代了。
             return cursor != size;
         }
 
+        /**
+         * 下一个元素。
+         * @return
+         */
         @SuppressWarnings("unchecked")
         public E next() {
+            // 校验是否数组发生了变化
             checkForComodification();
-            int i = cursor;
+            // 判断如果超过 size 范围，抛出 NoSuchElementException 异常
+            int i = cursor; // <1> i 记录当前 cursor 的位置
             if (i >= size)
                 throw new NoSuchElementException();
+            // 判断如果超过 elementData 大小，说明可能被修改了，抛出 ConcurrentModificationException 异常
             Object[] elementData = ArrayList.this.elementData;
             if (i >= elementData.length)
                 throw new ConcurrentModificationException();
+            // <2> cursor 指向下一个位置
             cursor = i + 1;
-            return (E) elementData[lastRet = i];
+            // <3> 返回当前位置的元素
+            return (E) elementData[lastRet = i]; // <4> 此处，会将 lastRet 指向当前位置
         }
 
+        /**
+         * 移除当前元素。
+         */
         public void remove() {
+            // 如果 lastRet 小于 0 ，说明没有指向任何元素，抛出 IllegalStateException 异常
             if (lastRet < 0)
                 throw new IllegalStateException();
+            // 校验是否数组发生了变化
             checkForComodification();
 
             try {
+                // <1> 移除 lastRet 位置的元素
                 ArrayList.this.remove(lastRet);
+                // <2> cursor 指向 lastRet 位置，因为被移了，所以需要后退下
                 cursor = lastRet;
+                // <3> lastRet 标记为 -1 ，因为当前元素被移除了
                 lastRet = -1;
-                expectedModCount = modCount;
+                // <4> 记录新的数组的修改次数
+                expectedModCount = modCount;//因为此处修改了数组，如果不修改下，后续迭代肯定会报错。
             } catch (IndexOutOfBoundsException ex) {
                 throw new ConcurrentModificationException();
             }
         }
 
+        /**
+         * 消费剩余未迭代的元素。
+         * @param action
+         */
         @Override
         public void forEachRemaining(Consumer<? super E> action) {
+            // 要求 action 非空
             Objects.requireNonNull(action);
+            // 获得当前数组大小
             final int size = ArrayList.this.size;
+            // 记录 i 指向 cursor
             int i = cursor;
             if (i < size) {
+                // 判断如果超过 elementData 大小，说明可能被修改了，抛出 ConcurrentModificationException 异常
                 final Object[] es = elementData;
                 if (i >= es.length)
                     throw new ConcurrentModificationException();
+                // 逐个处理
                 for (; i < size && modCount == expectedModCount; i++)
                     action.accept(elementAt(es, i));
                 // update once at end to reduce heap write traffic
+                // 更新 cursor 和 lastRet 的指向
                 cursor = i;
                 lastRet = i - 1;
+                // 校验是否数组发生了变化
                 checkForComodification();
             }
         }
