@@ -1168,6 +1168,9 @@ public class ArrayList<E> extends AbstractList<E>
      * returned by an initial call to {@link ListIterator#next next}.
      * An initial call to {@link ListIterator#previous previous} would
      * return the element with the specified index minus one.
+     * 创建 ListIterator 迭代器。
+     * 创建 ListItr 迭代器。ListItr 实现 java.util.ListIterator 接口，是 ArrayList 的内部类。
+     * 虽然说 AbstractList 也提供了一个 ListItr 的实现，但是 ArrayList 为了更好的性能，所以自己实现了，在其类上也有注释“An optimized version of AbstractList.ListItr”。
      *
      * <p>The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
      *
@@ -1327,56 +1330,95 @@ public class ArrayList<E> extends AbstractList<E>
      * An optimized version of AbstractList.ListItr
      */
     private class ListItr extends Itr implements ListIterator<E> {
+        /**
+         * ListItr 直接继承 Itr 类，无自定义的属性。
+         * @param index
+         */
         ListItr(int index) {
             super();
             cursor = index;
         }
 
+        /**
+         * @return 是否有前一个
+         */
         public boolean hasPrevious() {
             return cursor != 0;
         }
 
+        /**
+         * @return 下一个位置
+         */
         public int nextIndex() {
             return cursor;
         }
 
+        /**
+         * @return 前一个位置
+         */
         public int previousIndex() {
             return cursor - 1;
         }
 
+        /**
+         * @return 前一个元素
+         */
         @SuppressWarnings("unchecked")
         public E previous() {
+            // 校验是否数组发生了变化
             checkForComodification();
+            // 判断如果小于 0 ，抛出 NoSuchElementException 异常
             int i = cursor - 1;
             if (i < 0)
                 throw new NoSuchElementException();
+            // 判断如果超过 elementData 大小，说明可能被修改了，抛出 ConcurrentModificationException 异常
             Object[] elementData = ArrayList.this.elementData;
             if (i >= elementData.length)
                 throw new ConcurrentModificationException();
+            // cursor 指向上一个位置
             cursor = i;
-            return (E) elementData[lastRet = i];
+            // 返回当前位置的元素
+            return (E) elementData[lastRet = i]; // 此处，会将 lastRet 指向当前位置
         }
 
+        /**
+         * 设置当前元素
+         *
+         * @param e 设置的元素
+         */
         public void set(E e) {
+            // 如果 lastRet 无指向，抛出 IllegalStateException 异常
             if (lastRet < 0)
                 throw new IllegalStateException();
+            // 校验是否数组发生了变化
             checkForComodification();
 
             try {
+                // 设置
                 ArrayList.this.set(lastRet, e);
             } catch (IndexOutOfBoundsException ex) {
                 throw new ConcurrentModificationException();
             }
         }
 
+        /**
+         * 添加元素当当前位置
+         *
+         * @param e 添加的元素
+         */
         public void add(E e) {
+            // 校验是否数组发生了变化
             checkForComodification();
 
             try {
+                // 添加元素到当前位置
                 int i = cursor;
                 ArrayList.this.add(i, e);
+                // cursor 指向下一个位置，因为当前位置添加了新的元素，所以需要后挪
                 cursor = i + 1;
+                // lastRet 标记为 -1 ，因为当前元素并未访问
                 lastRet = -1;
+                // 记录新的数组的修改次数
                 expectedModCount = modCount;
             } catch (IndexOutOfBoundsException ex) {
                 throw new ConcurrentModificationException();
