@@ -693,19 +693,23 @@ public class LinkedList<E>
      * {@code Objects.equals(o, get(i))},
      * or -1 if there is no such index.
      *
+     * 查找首个为指定元素的位置
+     *
      * @param o element to search for
      * @return the index of the first occurrence of the specified element in
      *         this list, or -1 if this list does not contain the element
      */
     public int indexOf(Object o) {
         int index = 0;
-        if (o == null) {
+        if (o == null) { // 如果 o 为 null 的情况
+            // 顺序遍历，如果 item 为 null 的节点，进行返回
             for (Node<E> x = first; x != null; x = x.next) {
                 if (x.item == null)
-                    return index;
+                    return index; // 找到
                 index++;
             }
-        } else {
+        } else { // 如果 o 非 null 的情况
+            // 顺序遍历，如果 item 为 o 的节点，进行返回
             for (Node<E> x = first; x != null; x = x.next) {
                 if (o.equals(x.item))
                     return index;
@@ -722,23 +726,27 @@ public class LinkedList<E>
      * {@code Objects.equals(o, get(i))},
      * or -1 if there is no such index.
      *
+     * 查找最后一个为指定元素的位置
+     *
      * @param o element to search for
      * @return the index of the last occurrence of the specified element in
      *         this list, or -1 if this list does not contain the element
      */
     public int lastIndexOf(Object o) {
         int index = size;
-        if (o == null) {
+        if (o == null) { // 如果 o 为 null 的情况
+            // 倒序遍历，如果 item 为 null 的节点，进行返回
             for (Node<E> x = last; x != null; x = x.prev) {
                 index--;
                 if (x.item == null)
-                    return index;
+                    return index; // 找到
             }
-        } else {
+        } else { // 如果 o 非 null 的情况
+            // 倒序遍历，如果 item 为 o 的节点，进行返回
             for (Node<E> x = last; x != null; x = x.prev) {
                 index--;
                 if (o.equals(x.item))
-                    return index;
+                    return index; // 找到
             }
         }
         return -1;
