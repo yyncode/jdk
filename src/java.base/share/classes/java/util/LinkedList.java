@@ -435,6 +435,12 @@ public class LinkedList<E>
      * in the list in the order that they are returned by the
      * specified collection's iterator.
      *
+     * 从指定位置开始，将指定集合中的所有元素插入到此列表中。
+     * 将当前位于该位置的元素（如果有）和任何后续元素向右移动（增加其索引）。
+     * 新元素将按照指定集合的迭代器返回的顺序显示在列表中。
+     *
+     * 批量添加多个元素
+     *
      * @param index index at which to insert the first element
      *              from the specified collection
      * @param c collection containing elements to be added to this list
@@ -445,11 +451,13 @@ public class LinkedList<E>
     public boolean addAll(int index, Collection<? extends E> c) {
         checkPositionIndex(index);
 
+        // <1> 将 c 转成 a 数组
         Object[] a = c.toArray();
         int numNew = a.length;
-        if (numNew == 0)
+        if (numNew == 0) // 如果无添加元素，直接返回 false 数组未变更
             return false;
 
+        // <2> 获得第 index 位置的节点 succ ，和其前一个节点 pred
         Node<E> pred, succ;
         if (index == size) {
             succ = null;
@@ -459,25 +467,34 @@ public class LinkedList<E>
             pred = succ.prev;
         }
 
+        // <3> 遍历 a 数组，添加到 pred 的后面
         for (Object o : a) {
+            // 创建新节点
             @SuppressWarnings("unchecked") E e = (E) o;
             Node<E> newNode = new Node<>(pred, e, null);
+            // 如果 pred 为 null ，说明 first 也为 null ，则直接将 first 指向新节点
             if (pred == null)
                 first = newNode;
+            // pred 下一个指向新节点
             else
                 pred.next = newNode;
+            // 修改 pred 指向新节点
             pred = newNode;
         }
 
-        if (succ == null) {
+        // <4> 修改 succ 和 pred 的指向
+        if (succ == null) { // 如果 succ 为 null ，说明插入队尾，则直接修改 last 指向最后一个 pred
             last = pred;
-        } else {
-            pred.next = succ;
-            succ.prev = pred;
+        } else { // 如果 succ 非 null ，说明插入到 succ 的前面
+            pred.next = succ; // prev 下一个指向 succ
+            succ.prev = pred; // succes 前一个指向 pred
         }
 
+        // <5> 增加链表大小
         size += numNew;
+        // <6> 增加数组修改次数
         modCount++;
+        // 返回 true 数组有变更
         return true;
     }
 
