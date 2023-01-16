@@ -131,16 +131,24 @@ public class LinkedList<E>
 
     /**
      * Links e as first element.
+     * 添加元素到队头。
      */
     private void linkFirst(E e) {
+        // 记录原 first 节点
         final Node<E> f = first;
+        // first 指向新节点
         final Node<E> newNode = new Node<>(null, e, f);
+        // first 指向新节点
         first = newNode;
+        // 如果原 first 为空，说明 last 也为空，则 last 也指向新节点
         if (f == null)
             last = newNode;
+        // 如果原 first 非空，说明 last 也非空，则原 first 的 next 指向新节点。
         else
             f.prev = newNode;
+        // 增加链表大小
         size++;
+        // 增加数组修改次数
         modCount++;
     }
 
@@ -148,30 +156,49 @@ public class LinkedList<E>
      * Links e as last element.
      */
     void linkLast(E e) {
+        // <1> 记录原 last 节点
         final Node<E> l = last;
+        // <2> 创建新节点
+        // 第一个参数表示，newNode 的前一个节点为 l 。
+        // 第二个参数表示，e 为元素。
+        // 第三个参数表示，newNode 的后一个节点为 null 。
         final Node<E> newNode = new Node<>(l, e, null);
+        // <3> last 指向新节点
         last = newNode;
+        // <4.1> 如果原 last 为 null ，说明 first 也为空，则 first 也指向新节点
         if (l == null)
             first = newNode;
+        // <4.2> 如果原 last 非 null ，说明 first 也非空，则原 last 的 next 指向新节点。
         else
             l.next = newNode;
+        // <5> 增加链表大小
         size++;
+        // <6> 增加数组修改次数
         modCount++;
     }
 
     /**
      * Inserts element e before non-null Node succ.
+     *
+     * 添加元素 e 到 succ 节点的前面。
      */
     void linkBefore(E e, Node<E> succ) {
         // assert succ != null;
+        // 获得 succ 的前一个节点
         final Node<E> pred = succ.prev;
+        // 创建新的节点 newNode
         final Node<E> newNode = new Node<>(pred, e, succ);
+        // <Y> 设置 succ 的前一个节点为新节点
         succ.prev = newNode;
+        // 如果 pred 为 null ，说明 first 也为空，则 first 也指向新节点
         if (pred == null)
             first = newNode;
+        // 如果 pred 非 null ，说明 first 也为空，则 pred 也指向新节点
         else
             pred.next = newNode;
+        // 增加链表大小
         size++;
+        // 增加数组修改次数
         modCount++;
     }
 
@@ -339,12 +366,15 @@ public class LinkedList<E>
     /**
      * Appends the specified element to the end of this list.
      *
+     * 将指定的元素追加到此列表的末尾。
+     *
      * <p>This method is equivalent to {@link #addLast}.
      *
      * @param e element to be appended to this list
      * @return {@code true} (as specified by {@link Collection#add})
      */
     public boolean add(E e) {
+        // <X> 添加末尾
         linkLast(e);
         return true;
     }
@@ -509,16 +539,25 @@ public class LinkedList<E>
      * Shifts the element currently at that position (if any) and any
      * subsequent elements to the right (adds one to their indices).
      *
+     * 插入单个元素到指定位置。
+     *
      * @param index index at which the specified element is to be inserted
      * @param element element to be inserted
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public void add(int index, E element) {
+        // 校验不要超过范围
         checkPositionIndex(index);
-
+        // <1> 如果刚好等于链表大小，直接添加到尾部即可
         if (index == size)
             linkLast(element);
+        // <2> 添加到第 index 的节点的前面
         else
+        /**
+         *      * 先调用 #node(int index) 方法，获得第 index 位置的 Node 节点 node 。
+         *      * 然后，调用 #linkBefore(E element, Node node) 方法，将新节点添加到 node 的前面。
+         *      * 相当于说，node 的前一个节点的 next 指向新节点，node 的 prev 指向新节点。
+         */
             linkBefore(element, node(index));
     }
 
@@ -576,11 +615,13 @@ public class LinkedList<E>
     Node<E> node(int index) {
         // assert isElementIndex(index);
 
+        // 如果 index 小于 size 的一半，就正序遍历，获得第 index 个节点
         if (index < (size >> 1)) {
             Node<E> x = first;
             for (int i = 0; i < index; i++)
                 x = x.next;
             return x;
+        // 如果 index 大于 size 的一半，就倒序遍历，获得第 index 个节点
         } else {
             Node<E> x = last;
             for (int i = size - 1; i > index; i--)
