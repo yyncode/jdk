@@ -119,12 +119,13 @@ public class LinkedList<E>
      * Constructs a list containing the elements of the specified
      * collection, in the order they are returned by the collection's
      * iterator.
-     *
+     * 按照集合的迭代器返回的顺序构造包含指定集合的元素的列表。
      * @param  c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
      */
     public LinkedList(Collection<? extends E> c) {
         this();
+        // 添加 c 到链表中
         addAll(c);
     }
 
