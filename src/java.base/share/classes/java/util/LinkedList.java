@@ -208,15 +208,22 @@ public class LinkedList<E>
     private E unlinkFirst(Node<E> f) {
         // assert f == first && f != null;
         final E element = f.item;
+        // 获得 f 的下一个节点
         final Node<E> next = f.next;
+        // 设置 f 的 item 为 null ，帮助 GC
         f.item = null;
+        // 设置 f 的 next 为 null ，帮助 GC
         f.next = null; // help GC
+        // 修改 fisrt 指向 next
         first = next;
-        if (next == null)
+        // 修改 next 节点的 prev 指向 null
+        if (next == null) // 如果链表只有一个元素，说明被移除后，队列就是空的，则 last 设置为 null
             last = null;
         else
             next.prev = null;
+        // 链表大小减一
         size--;
+        // 增加数组修改次数
         modCount++;
         return element;
     }
@@ -227,15 +234,22 @@ public class LinkedList<E>
     private E unlinkLast(Node<E> l) {
         // assert l == last && l != null;
         final E element = l.item;
+        // 获得 f 的上一个节点
         final Node<E> prev = l.prev;
+        // 设置 l 的 item 为 null ，帮助 GC
         l.item = null;
+        // 设置 l 的 prev 为 null ，帮助 GC
         l.prev = null; // help GC
+        // 修改 last 指向 prev
         last = prev;
-        if (prev == null)
+        // 修改 prev 节点的 next 指向 null
+        if (prev == null) // 如果链表只有一个元素，说明被移除后，队列就是空的，则 first 设置为 null
             first = null;
         else
             prev.next = null;
+        // 链表大小减一
         size--;
+        // 增加数组修改次数
         modCount++;
         return element;
     }
@@ -246,25 +260,31 @@ public class LinkedList<E>
     E unlink(Node<E> x) {
         // assert x != null;
         final E element = x.item;
+        // <1> 获得 x 的前后节点 prev、next
         final Node<E> next = x.next;
         final Node<E> prev = x.prev;
 
-        if (prev == null) {
+        // <2> 将 prev 的 next 指向下一个节点
+        if (prev == null) { // <2.1> 如果 prev 为空，说明 first 被移除，则直接将 first 指向 next
             first = next;
-        } else {
-            prev.next = next;
-            x.prev = null;
+        } else { // <2.2> 如果 prev 非空
+            prev.next = next; // prev 的 next 指向 next
+            x.prev = null; // x 的 pre 指向 null
         }
 
-        if (next == null) {
+        // <3> 将 next 的 prev 指向上一个节点
+        if (next == null) { // <3.1> 如果 next 为空，说明 last 被移除，则直接将 last 指向 prev
             last = prev;
-        } else {
-            next.prev = prev;
-            x.next = null;
+        } else { // <3.2> 如果 next 非空
+            next.prev = prev; // next 的 prev 指向 prev
+            x.next = null; // x 的 next 指向 null
         }
 
+        // <4> 将 x 的 item 设置为 null ，帮助 GC
         x.item = null;
+        // <5> 减少链表大小
         size--;
+        // <6> 增加数组的修改次数
         modCount++;
         return element;
     }
@@ -303,21 +323,27 @@ public class LinkedList<E>
      */
     public E removeFirst() {
         final Node<E> f = first;
+        // <1> 如果链表为空，抛出 NoSuchElementException 异常
         if (f == null)
             throw new NoSuchElementException();
+        // <2> 移除链表时首个元素
         return unlinkFirst(f);
     }
 
     /**
      * Removes and returns the last element from this list.
      *
+     * 移除链表最后一个节点。
+     *
      * @return the last element from this list
      * @throws NoSuchElementException if this list is empty
      */
     public E removeLast() {
         final Node<E> l = last;
+        // 如果链表为空，则抛出 NoSuchElementException 移除
         if (l == null)
             throw new NoSuchElementException();
+        // 移除链表的最后一个元素
         return unlinkLast(l);
     }
 
@@ -389,11 +415,14 @@ public class LinkedList<E>
      * contained the specified element (or equivalently, if this list
      * changed as a result of the call).
      *
+     * 移除首个为 o 的元素，并返回是否移除到。
+     *
      * @param o element to be removed from this list, if present
      * @return {@code true} if this list contained the specified element
      */
     public boolean remove(Object o) {
-        if (o == null) {
+        if (o == null) { // o 为 null 的情况
+            // 顺序遍历，找到 null 的元素后，进行移除
             for (Node<E> x = first; x != null; x = x.next) {
                 if (x.item == null) {
                     unlink(x);
@@ -401,6 +430,7 @@ public class LinkedList<E>
                 }
             }
         } else {
+            // 顺序遍历，找到等于 o 的元素后，进行移除
             for (Node<E> x = first; x != null; x = x.next) {
                 if (o.equals(x.item)) {
                     unlink(x);
@@ -583,12 +613,15 @@ public class LinkedList<E>
      * subsequent elements to the left (subtracts one from their indices).
      * Returns the element that was removed from the list.
      *
+     * 移除指定位置的元素，并返回该位置的原元素。
+     *
      * @param index the index of the element to be removed
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public E remove(int index) {
         checkElementIndex(index);
+        // 获得第 index 的 Node 节点，然后进行移除。
         return unlink(node(index));
     }
 
@@ -737,13 +770,15 @@ public class LinkedList<E>
      * @return the head of this list, or {@code null} if this list is empty
      * @since 1.5
      */
-    public E poll() {
+    public E poll() { // 移除头
         final Node<E> f = first;
         return (f == null) ? null : unlinkFirst(f);
     }
 
     /**
      * Retrieves and removes the head (first element) of this list.
+     *
+     * 移除链表首个节点。
      *
      * @return the head of this list
      * @throws NoSuchElementException if this list is empty
@@ -823,7 +858,7 @@ public class LinkedList<E>
      *     this list is empty
      * @since 1.6
      */
-    public E pollFirst() {
+    public E pollFirst() { // 移除头
         final Node<E> f = first;
         return (f == null) ? null : unlinkFirst(f);
     }
@@ -836,7 +871,7 @@ public class LinkedList<E>
      *     this list is empty
      * @since 1.6
      */
-    public E pollLast() {
+    public E pollLast() { // 移除尾
         final Node<E> l = last;
         return (l == null) ? null : unlinkLast(l);
     }
@@ -866,7 +901,7 @@ public class LinkedList<E>
      * @since 1.6
      */
     public E pop() {
-        return removeFirst();
+        return removeFirst(); // 这个方法，如果队列为空，还是会抛出 NoSuchElementException 异常。
     }
 
     /**
@@ -874,11 +909,13 @@ public class LinkedList<E>
      * list (when traversing the list from head to tail).  If the list
      * does not contain the element, it is unchanged.
      *
+     * 移除链表首个节点
+     *
      * @param o element to be removed from this list, if present
      * @return {@code true} if the list contained the specified element
      * @since 1.6
      */
-    public boolean removeFirstOccurrence(Object o) {
+    public boolean removeFirstOccurrence(Object o) { // 移除首个
         return remove(o);
     }
 
@@ -887,12 +924,15 @@ public class LinkedList<E>
      * list (when traversing the list from head to tail).  If the list
      * does not contain the element, it is unchanged.
      *
+     * 移除链表最后节点
+     *
      * @param o element to be removed from this list, if present
      * @return {@code true} if the list contained the specified element
      * @since 1.6
      */
     public boolean removeLastOccurrence(Object o) {
-        if (o == null) {
+        if (o == null) { // o 为 null 的情况
+            // 倒序遍历，找到 null 的元素后，进行移除
             for (Node<E> x = last; x != null; x = x.prev) {
                 if (x.item == null) {
                     unlink(x);
@@ -900,6 +940,7 @@ public class LinkedList<E>
                 }
             }
         } else {
+            // 倒序遍历，找到等于 o 的元素后，进行移除
             for (Node<E> x = last; x != null; x = x.prev) {
                 if (o.equals(x.item)) {
                     unlink(x);
