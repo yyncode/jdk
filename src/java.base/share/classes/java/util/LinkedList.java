@@ -1435,4 +1435,6 @@ public class LinkedList<E>
         }
     }
 
+    //    hashCode() 是通过父类 AbstractList 来实现的，通过 for 来遍历 LinkedList ，然后进行求哈希。
+
 }

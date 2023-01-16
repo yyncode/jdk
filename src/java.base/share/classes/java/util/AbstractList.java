@@ -565,6 +565,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      */
     public int hashCode() {
         int hashCode = 1;
+        // 遍历，求哈希
         for (E e : this)
             hashCode = 31*hashCode + (e==null ? 0 : e.hashCode());
         return hashCode;
