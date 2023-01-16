@@ -297,7 +297,7 @@ public class LinkedList<E>
      */
     public E getFirst() {
         final Node<E> f = first;
-        if (f == null)
+        if (f == null) // 如果链表为空值，抛出 NoSuchElementException 异常
             throw new NoSuchElementException();
         return f.item;
     }
@@ -555,12 +555,16 @@ public class LinkedList<E>
     /**
      * Returns the element at the specified position in this list.
      *
+     * 获得指定位置的元素。
+     *
      * @param index index of the element to return
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public E get(int index) {
         checkElementIndex(index);
+        // 基于 node(int index) 方法实现
+        // 随机访问 index 位置的元素，时间复杂度为 O(n) 。
         return node(index).item;
     }
 
@@ -757,6 +761,8 @@ public class LinkedList<E>
     /**
      * Retrieves, but does not remove, the head (first element) of this list.
      *
+     * 检索但不删除此列表的头部（第一个元素）。
+     *
      * @return the head of this list, or {@code null} if this list is empty
      * @since 1.5
      */
@@ -768,11 +774,13 @@ public class LinkedList<E>
     /**
      * Retrieves, but does not remove, the head (first element) of this list.
      *
+     * 检索但不删除此列表的头部（第一个元素）。
+     *
      * @return the head of this list
      * @throws NoSuchElementException if this list is empty
      * @since 1.5
      */
-    public E element() {
+    public E element() { // 如果链表为空值，抛出 NoSuchElementException 异常
         return getFirst();
     }
 
@@ -840,6 +848,8 @@ public class LinkedList<E>
      * Retrieves, but does not remove, the first element of this list,
      * or returns {@code null} if this list is empty.
      *
+     * 检索但不删除此列表的第一个元素，如果此列表为空，则返回 null。
+     *
      * @return the first element of this list, or {@code null}
      *         if this list is empty
      * @since 1.6
@@ -852,6 +862,8 @@ public class LinkedList<E>
     /**
      * Retrieves, but does not remove, the last element of this list,
      * or returns {@code null} if this list is empty.
+     *
+     * 检索但不删除此列表的最后一个元素，如果此列表为空，则返回 null。
      *
      * @return the last element of this list, or {@code null}
      *         if this list is empty
