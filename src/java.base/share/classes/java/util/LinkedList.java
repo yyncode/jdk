@@ -624,6 +624,10 @@ public class LinkedList<E>
         // 获得第 index 的 Node 节点，然后进行移除。
         return unlink(node(index));
     }
+    //java.util.AbstractCollection.removeAll
+    //removeAll,是通过父类 AbstractCollection 来实现的，通过迭代器来遍历 LinkedList ，然后判断 c 中如果包含，则进行移除。
+    //java.util.AbstractCollection.retainAll
+    //retainAll,是通过父类 AbstractCollection 来实现的，求 LinkedList 和指定多个元素的交集。简单来说，恰好和
 
     /**
      * Tells if the argument is the index of an existing element.
