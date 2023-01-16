@@ -572,6 +572,8 @@ public class LinkedList<E>
      * Replaces the element at the specified position in this list with the
      * specified element.
      *
+     * 设置指定位置的元素
+     *
      * @param index index of the element to replace
      * @param element element to be stored at the specified position
      * @return the element previously at the specified position
@@ -579,8 +581,10 @@ public class LinkedList<E>
      */
     public E set(int index, E element) {
         checkElementIndex(index);
+        // 获得第 index 位置的节点
         Node<E> x = node(index);
         E oldVal = x.item;
+        // 修改对应的值
         x.item = element;
         return oldVal;
     }
