@@ -1194,11 +1194,15 @@ public class LinkedList<E>
      * <p>This method acts as bridge between array-based and collection-based
      * APIs.
      *
+     * 将 ArrayList 转换成 [] 数组
+     *
      * @return an array containing all of the elements in this list
      *         in proper sequence
      */
     public Object[] toArray() {
+        // 创建 Object 数组
         Object[] result = new Object[size];
+        // 顺序遍历节点，设置到 Object 数组中
         int i = 0;
         for (Node<E> x = first; x != null; x = x.next)
             result[i++] = x.item;
@@ -1234,6 +1238,20 @@ public class LinkedList<E>
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
      *
+     * 返回一个数组，其中包含此列表中所有元素的正确顺序（从第一个到最后一个元素）;
+     * 返回数组的运行时类型是指定数组的运行时类型。
+     * 如果列表适合指定的数组，则在其中返回该列表。
+     * 否则，将分配一个具有指定数组的运行时类型和此列表大小的新数组。
+     * 如果列表适合指定的数组，并有多余的空间（即，数组的元素多于列表），则紧跟在列表末尾之后的数组中的元素设置为 null。
+     * （仅当调用方知道列表不包含任何 null 元素时，这在确定列表的长度时才很有用。
+     * 与 toArray（） 方法一样，此方法充当基于数组和基于集合的 API 之间的桥梁。
+     * 此外，该方法允许精确控制输出数组的运行时类型，并且在某些情况下可用于节省分配成本。
+     * 假设 x 是一个已知只包含字符串的列表。以下代码可用于将列表转储到新分配的 String 数组中：
+     * String[] y = x.toArray(new String[0]);
+     * 请注意，toArray（new Object[0]） 在函数上与 toArray（） 相同
+     *
+     * 指定 T 泛型的数组，
+     *
      * @param a the array into which the elements of the list are to
      *          be stored, if it is big enough; otherwise, a new array of the
      *          same runtime type is allocated for this purpose.
@@ -1245,17 +1263,21 @@ public class LinkedList<E>
      */
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
+        // <1> 如果传入的数组长度小于 size 大小，则直接复制一个新数组返回
         if (a.length < size)
             a = (T[])java.lang.reflect.Array.newInstance(
                                 a.getClass().getComponentType(), size);
+        // <2> 顺序遍历链表，复制到 a 中
         int i = 0;
         Object[] result = a;
         for (Node<E> x = first; x != null; x = x.next)
             result[i++] = x.item;
 
+        // <2.1> 如果传入的数组大于 size 大小，则将 size 赋值为 null
         if (a.length > size)
             a[size] = null;
 
+        // <2.2> 返回 a
         return a;
     }
 
