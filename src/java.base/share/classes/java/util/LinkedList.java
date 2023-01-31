@@ -1296,6 +1296,8 @@ public class LinkedList<E>
      * Saves the state of this {@code LinkedList} instance to a stream
      * (that is, serializes it).
      *
+     * 序列化链表
+     *
      * @serialData The size of the list (the number of elements it
      *             contains) is emitted (int), followed by all of its
      *             elements (each an Object) in the proper order.
@@ -1320,20 +1322,25 @@ public class LinkedList<E>
     /**
      * Reconstitutes this {@code LinkedList} instance from a stream
      * (that is, deserializes it).
+     *
+     * 反序列化链表
      */
     @SuppressWarnings("unchecked")
     @java.io.Serial
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
         // Read in any hidden serialization magic
+        // 读取非静态属性、非 transient 属性
         s.defaultReadObject();
 
         // Read in size
+        // 读取非静态属性、非 transient 属性
         int size = s.readInt();
 
         // Read in all elements in the proper order.
+        // 顺序遍历，逐个反序列化
         for (int i = 0; i < size; i++)
-            linkLast((E)s.readObject());
+            linkLast((E)s.readObject()); // 添加到链表尾部
     }
 
     /**
