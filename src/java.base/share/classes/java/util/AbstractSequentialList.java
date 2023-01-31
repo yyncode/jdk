@@ -234,6 +234,8 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
      *
      * This implementation merely returns a list iterator over the list.
      *
+     * 此实现仅返回列表上的列表迭代器。
+     *
      * @return an iterator over the elements in this list (in proper sequence)
      */
     public Iterator<E> iterator() {
@@ -243,6 +245,8 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
     /**
      * Returns a list iterator over the elements in this list (in proper
      * sequence).
+     *
+     * 返回此列表中元素的列表迭代器（按正确的顺序）。
      *
      * @param  index index of first element to be returned from the list
      *         iterator (by a call to the {@code next} method)

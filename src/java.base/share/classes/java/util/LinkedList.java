@@ -1001,6 +1001,10 @@ public class LinkedList<E>
      * than risking arbitrary, non-deterministic behavior at an undetermined
      * time in the future.
      *
+     * 返回此列表中元素的列表迭代器（以适当的顺序），从列表中的指定位置开始。遵守List.listIterator(int)的一般契约。
+     * 列表迭代器是快速失败的：如果列表在创建迭代器后的任何时候在结构上被修改，除了通过列表迭代器自己的remove或add方法之外，列表迭代器将抛出一个ConcurrentModificationException 。
+     * 因此，面对并发修改，迭代器会快速干净地失败，而不是冒着在未来不确定的时间出现任意的、不确定的行为的风险.
+     *
      * @param index index of the first element to be returned from the
      *              list-iterator (by a call to {@code next})
      * @return a ListIterator of the elements in this list (in proper
@@ -1014,14 +1018,32 @@ public class LinkedList<E>
     }
 
     private class ListItr implements ListIterator<E> {
+        /**
+         * 最后返回的节点
+         */
         private Node<E> lastReturned;
+        /**
+         * 下一个节点
+         */
         private Node<E> next;
+        /**
+         * 下一个访问元素的位置，从下标 0 开始。
+         *
+         * 主要用于 {@link #nextIndex()} 中，判断是否遍历结束
+         */
         private int nextIndex;
+        /**
+         * 创建迭代器时，数组修改次数。
+         *
+         * 在迭代过程中，如果数组发生了变化，会抛出 ConcurrentModificationException 异常。
+         */
         private int expectedModCount = modCount;
 
         ListItr(int index) {
             // assert isPositionIndex(index);
+            // 获得下一个节点
             next = (index == size) ? null : node(index);
+            // 下一个节点的位置
             nextIndex = index;
         }
 
@@ -1030,13 +1052,19 @@ public class LinkedList<E>
         }
 
         public E next() {
+            // 校验是否数组发生了变化
             checkForComodification();
+            // 如果已经遍历到结尾，抛出 NoSuchElementException 异常
             if (!hasNext())
                 throw new NoSuchElementException();
 
+            // lastReturned 指向，记录最后访问节点
             lastReturned = next;
+            // next 指向，下一个节点
             next = next.next;
+            // 下一个节点的位置 + 1
             nextIndex++;
+            // 返回 lastReturned
             return lastReturned.item;
         }
 
@@ -1045,12 +1073,17 @@ public class LinkedList<E>
         }
 
         public E previous() {
+            // 校验是否数组发生了变化
             checkForComodification();
+            // 如果已经遍历到结尾，抛出 NoSuchElementException 异常
             if (!hasPrevious())
                 throw new NoSuchElementException();
 
+            // 如果已经遍历到结尾，抛出 NoSuchElementException 异常
             lastReturned = next = (next == null) ? last : next.prev;
+            // 下一个节点的位置 - 1
             nextIndex--;
+            // 返回 lastReturned
             return lastReturned.item;
         }
 
@@ -1063,46 +1096,67 @@ public class LinkedList<E>
         }
 
         public void remove() {
+            // 校验是否数组发生了变化
             checkForComodification();
+            // 如果 lastReturned 为空，抛出 IllegalStateException 异常，因为无法移除了。
             if (lastReturned == null)
                 throw new IllegalStateException();
 
+            // 获得 lastReturned 的下一个
             Node<E> lastNext = lastReturned.next;
+            // 移除 lastReturned 节点
             unlink(lastReturned);
-            if (next == lastReturned)
+            // 此处，会分成两种情况
+            if (next == lastReturned) // 说明发生过调用 `#previous()` 方法的情况，next 指向下一个节点，而 nextIndex 是无需更改的
                 next = lastNext;
             else
-                nextIndex--;
+                nextIndex--; // nextIndex 减一。
+            // 设置 lastReturned 为空
             lastReturned = null;
+            // 增加数组修改次数
             expectedModCount++;
         }
 
         public void set(E e) {
+            // 如果 lastReturned 为空，抛出 IllegalStateException 异常，因为无法修改了。
             if (lastReturned == null)
                 throw new IllegalStateException();
+            // 校验是否数组发生了变化
             checkForComodification();
+            // 修改 lastReturned 的 item 为 e
             lastReturned.item = e;
         }
 
         public void add(E e) {
+            // 校验是否数组发生了变化
             checkForComodification();
+            // 设置 lastReturned 为空
             lastReturned = null;
-            if (next == null)
+            // 此处，会分成两种情况
+            if (next == null) // 如果 next 已经遍历到尾，则 e 作为新的尾节点，进行插入。算是性能优化
                 linkLast(e);
-            else
+            else // 插入到 next 的前面
                 linkBefore(e, next);
+            // nextIndex 加一。
             nextIndex++;
+            // 增加数组修改次数
             expectedModCount++;
         }
 
         public void forEachRemaining(Consumer<? super E> action) {
             Objects.requireNonNull(action);
+            // 遍历剩余链表
             while (modCount == expectedModCount && nextIndex < size) {
+                // 执行 action 逻辑
                 action.accept(next.item);
+                // lastReturned 指向 next
                 lastReturned = next;
+                //  next 指向下一个节点
                 next = next.next;
+                // nextIndex 加一。
                 nextIndex++;
             }
+            // 校验是否数组发生了变化
             checkForComodification();
         }
 
