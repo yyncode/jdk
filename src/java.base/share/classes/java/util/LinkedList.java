@@ -537,15 +537,23 @@ public class LinkedList<E>
         // - helps a generational GC if the discarded nodes inhabit
         //   more than one generation
         // - is sure to free memory even if there is a reachable Iterator
+        // 顺序遍历链表，设置每个节点前后指向为 null
+        // 通过这样的方式，帮助 GC
         for (Node<E> x = first; x != null; ) {
+            // 获得下一个节点
             Node<E> next = x.next;
+            // 设置 x 的 item、next、prev 为空。
             x.item = null;
             x.next = null;
             x.prev = null;
+            // 设置 x 为下一个节点
             x = next;
         }
+        // 清空 first 和 last 指向
         first = last = null;
+        // 设置链表大小为 0
         size = 0;
+        // 增加数组修改次数
         modCount++;
     }
 
