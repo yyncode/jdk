@@ -1177,14 +1177,18 @@ public class LinkedList<E>
      * @return a shallow copy of this {@code LinkedList} instance
      */
     public Object clone() {
+        // 调用父类，进行克隆
         LinkedList<E> clone = superClone();
 
         // Put clone into "virgin" state
+        // 重置 clone 为初始化状态
         clone.first = clone.last = null;
         clone.size = 0;
         clone.modCount = 0;
 
         // Initialize clone with our elements
+        // 遍历遍历，逐个添加到 clone 中
+        // 注意，first、last 等都是重新初始化进来，不与原 LinkedList 共享。
         for (Node<E> x = first; x != null; x = x.next)
             clone.add(x.item);
 
