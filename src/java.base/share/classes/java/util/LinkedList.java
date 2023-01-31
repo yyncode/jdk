@@ -1304,12 +1304,15 @@ public class LinkedList<E>
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
         // Write out any hidden serialization magic
+        // 写入非静态属性、非 transient 属性
         s.defaultWriteObject();
 
         // Write out size
+        // 写入链表大小
         s.writeInt(size);
 
         // Write out all elements in the proper order.
+        // 写入链表大小
         for (Node<E> x = first; x != null; x = x.next)
             s.writeObject(x.item);
     }
